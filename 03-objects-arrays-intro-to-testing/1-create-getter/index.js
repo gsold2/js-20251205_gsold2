@@ -6,16 +6,16 @@
 export function createGetter(path) {
     const fields = path.split('.');
 
-    return function (obj) {
+    return (obj) => {
+        let result = obj;
 
         for (const field of fields) {
-            if (Object.hasOwn(obj, field)) {
-                obj = obj[field];
-            } else {
-               return undefined; 
-            }
+            let fieldExtractable = result && Object.hasOwn(result, field);
+            if (!fieldExtractable) return;
+
+            result = result[field];
         }
 
-        return obj;
+        return result;
     };
 }
