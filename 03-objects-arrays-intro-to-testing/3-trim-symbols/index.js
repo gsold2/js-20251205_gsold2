@@ -13,22 +13,12 @@ export function trimSymbols(string, size) {
     }
 
     let result = '';
-    let count = 0;
-    let currentChar = '';
-
     result = string.split('').reduce(
-        (accumulator, item) => {
-            if (currentChar !== item) {
-                count = 1;
-                currentChar = item;
-                accumulator = accumulator + item;
-                return accumulator;
-            }
+        (accumulator, char) => {
+            let repeatedChars = char.repeat(size + 1);
+            let tmpAccumulator = accumulator + char;
+            if (!tmpAccumulator.includes(repeatedChars)) accumulator = accumulator + char;
 
-            count++;
-            if (count <= size) {
-                accumulator = accumulator + item;
-            }
             return accumulator;
         },
         "")
