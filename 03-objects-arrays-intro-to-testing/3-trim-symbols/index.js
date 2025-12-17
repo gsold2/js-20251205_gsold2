@@ -16,20 +16,22 @@ export function trimSymbols(string, size) {
     let count = 0;
     let currentChar = '';
 
-    for (const char of string) {
+    result = string.split('').reduce(
+        (accumulator, item) => {
+            if (currentChar !== item) {
+                count = 1;
+                currentChar = item;
+                accumulator = accumulator + item;
+                return accumulator;
+            }
 
-        if (currentChar !== char) {
-            count = 1;
-            currentChar = char;
-            result = result + char;
-            continue;
-        }
-
-        count++;
-        if (count <= size) {
-            result = result + char;
-        }
-    }
+            count++;
+            if (count <= size) {
+                accumulator = accumulator + item;
+            }
+            return accumulator;
+        },
+        "")
 
     return result;
 }
