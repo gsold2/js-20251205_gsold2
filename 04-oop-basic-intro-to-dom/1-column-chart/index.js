@@ -14,18 +14,12 @@ export default class ColumnChart {
         this.#link = link;
         this.#value = value;
         this.#formatHeading = formatHeading;
-        this.#element = document.createElement('div');
         this.#render();
     }
 
     #render() {
-        this.#element.classList.add('column-chart');
-        if (this.#data.length === 0) {
-            this.#element.classList.add('column-chart_loading');
-        }
-        this.#element.style.setProperty("--chart-height", this.#chartHeight);
-
         let innerHtml = `
+        <div class="column-chart ${this.#addChartLoading()}" style="--chart-height: ${this.chartHeight}">
             <div class="column-chart__title">
                 Total ${this.#label}
                 ${this.#addHref()}
@@ -35,9 +29,20 @@ export default class ColumnChart {
                 <div data-element="body" class="column-chart__chart">
                     ${this.#addChart()}
                 </div>
-            </div>`;
+            </div>
+        </div>`;
 
-        this.#element.innerHTML = innerHtml;
+        this.#element = this.#createElement(innerHtml);
+    }
+
+    #createElement(html) {
+        const tmp = document.createElement('div');
+        tmp.innerHTML = html;
+        return tmp.firstElementChild;
+    }
+
+    #addChartLoading() {
+        return this.#data.length == 0 ? 'column-chart_loading' : '';
     }
 
     #addHref() {
