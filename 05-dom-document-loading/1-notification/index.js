@@ -5,14 +5,14 @@ export default class NotificationMessage {
     #type;
     #element;
 
-    constructor(message = 'message',  { duration = 2000, type = 'success' } = {}) {
+    constructor(message = 'message', { duration = 2000, type = 'success' } = {}) {
         this.#message = message;
         this.#duration = duration;
         this.#type = type;
-        this.#createElemente();
+        this.#createElement();
     }
 
-    #createElemente() {
+    #createElement() {
         const tmp = document.createElement('div');
         tmp.innerHTML = this.#template();
         this.#element = tmp.firstElementChild;
@@ -34,6 +34,7 @@ export default class NotificationMessage {
             NotificationMessage.#activeNotification.remove();
         }
 
+        NotificationMessage.#activeNotification = this;
         element.append(this.#element);
 
         setTimeout(() => {
@@ -41,8 +42,6 @@ export default class NotificationMessage {
                 this.remove();
             }
         }, this.#duration);
-
-        NotificationMessage.#activeNotification = this;
     }
 
     destroy() {
@@ -53,7 +52,7 @@ export default class NotificationMessage {
     }
 
     remove() {
-        this.#element.remove();
+        if (this.#element) this.#element.remove();
     }
 
     get element() {

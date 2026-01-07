@@ -56,32 +56,23 @@ export default class SortableTable {
 
   #headersId() {
     return this.#headers
-      .map(header => header.id)
-      .reduce((accumulator, current) => {
-        accumulator.push(current);
-        return accumulator;
-      }, []);
+      .map(header => header.id);
   }
 
   #sortRows(header, direction) {
     let { title, sortable, sortType } = this.#headers.filter(e => e.id === header)[0];
-    if (sortable === false) {
-      alert(`Column with title '${title}' can't be sorted`);
-      return;
-    }
+    if (sortable === false) throw new TypeError(`Column with title '${title}' is not sortable`);
 
     if (sortType == 'number') {
       this.#data.sort((a, b) => direction * (a[header] - b[header]));
     } else if (sortType == 'string') {
       this.#data.sort((a, b) => direction * (a[header].localeCompare(b[header], ['ru', 'en'], { caseFirst: 'upper' })));
     } else {
-      throw new SyntaxError(`Invalide sortType '${sortType}'. It should be 'number' or 'string'`);
+      throw new TypeError(`Invalide sortType '${sortType}'. It should be 'number' or 'string'`);
     }
 
     let body = this.#elementBody();
     body.innerHTML = this.#rowsTemplate();
-    body.style.display = 'none';
-    body.style.display = '';
   }
 
   #elementHeader() {
@@ -104,7 +95,7 @@ export default class SortableTable {
       } else if (param === 'desc') {
         this.#sortRows(header, -1);
       } else {
-        throw new SyntaxError(`Invalide param '${param}'. It should be 'asc' or 'desc'`);
+        throw new TypeError(`Invalide param '${param}'. It should be 'asc' or 'desc'`);
       }
     }
   }
