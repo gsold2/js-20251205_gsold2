@@ -21,11 +21,10 @@ export default class ColumnChart {
         this.#link = link;
         this.#value = value;
         this.#formatHeading = formatHeading;
-        this.#render();
-        this.update(range.from, range.to);
-    }
+        this.#render(range.from, range.to);
+     }
 
-    #render() {
+    #render(from, to) {
         let innerHtml = `
         <div class="column-chart ${this.#addChartLoading()}" style="--chart-height: ${this.chartHeight}">
             <div class="column-chart__title">
@@ -41,6 +40,8 @@ export default class ColumnChart {
         </div>`;
 
         this.#element = this.#createElement(innerHtml);
+
+        this.update(from, to);
     }
 
     #createElement(html) {
@@ -84,13 +85,13 @@ export default class ColumnChart {
     async update(from, to) {
         await this.#fetchData(from, to);
 
-        console.log(`start update ${this.#label} ${this.#data}`);
+        console.log(`start update ${this.#label} ${from.toISOString().split('T')[0]} ${to.toISOString().split('T')[0]} ${this.#data}`);
 
         let body = this.#element.querySelector('[data-element="body"]');
         body.innerHTML = this.#addChart();
 
-        //index.js:93 Uncaught (in promise) TypeError: Cannot read properties of null (reading 'classList')
-        this.#element.querySelector('.column-chart_loading').classList.remove(column-chart_loading);
+        this.#element.classList.remove('column-chart_loading');
+        console.log(`finish update ${this.#label} ${from.toISOString().split('T')[0]} ${to.toISOString().split('T')[0]} ${this.#data}`);
     }
 
     async #fetchData(from, to) {
