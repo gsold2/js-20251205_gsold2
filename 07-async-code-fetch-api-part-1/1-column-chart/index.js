@@ -1,7 +1,136 @@
-import fetchJson from './utils/fetch-json.js';
+import fetchJson, { FetchError } from './utils/fetch-json.js';
 
 const BACKEND_URL = 'https://course-js.javascript.ru';
 
 export default class ColumnChart {
+    #url;
+    #data;
+    #label;
+    #link;
+    #value;
+    #chartHeight;
+    #formatHeading;
+    #element;
 
+    constructor({ url, range, chartHeight = 50, label = 'orders', link = '', value = 0, formatHeading = data => `${data}` }) {
+        this.#url = new URL(url, 'https://course-js.javascript.ru/');
+        this.#data = [];
+
+        this.#chartHeight = chartHeight;
+        this.#label = label;
+        this.#link = link;
+        this.#value = value;
+        this.#formatHeading = formatHeading;
+        this.#render();
+        this.update(range.from, range.to);
+    }
+
+    #render() {
+        let innerHtml = `
+        <div class="column-chart ${this.#addChartLoading()}" style="--chart-height: ${this.chartHeight}">
+            <div class="column-chart__title">
+                Total ${this.#label}
+                ${this.#addHref()}
+            </div>
+            <div class="column-chart__container">
+                ${this.#addCartHeader()}
+                <div data-element="body" class="column-chart__chart">
+                    ${this.#addChart()}
+                </div>
+            </div>
+        </div>`;
+
+        this.#element = this.#createElement(innerHtml);
+    }
+
+    #createElement(html) {
+        const tmp = document.createElement('div');
+        tmp.innerHTML = html;
+        return tmp.firstElementChild;
+    }
+
+    #addChartLoading() {
+        let chartLoading = this.#data.length == 0 ? 'column-chart_loading' : '';
+        return chartLoading;
+    }
+
+    #addHref() {
+        return this.#link !== '' ? `<a href="/${this.#link}" class="column-chart__link">View all</a>` : '';
+    }
+
+    #addCartHeader() {
+        return this.#value !== 0 ? `<div data-element="header" class="column-chart__header">${this.#formatHeading(this.#value)}</div>` : '';
+    }
+
+    #addChart() {
+        if (this.#data.length == 0) {
+            return `<div style="--value: 0" data-tooltip="100%"></div>`;
+        }
+
+        let maxValue = Math.max(...this.#data);
+        let scale = this.#chartHeight / maxValue;
+
+        let chart = this.#data
+            .map((item) => {
+                let percent = (item / maxValue * 100).toFixed(0);
+                let value = Math.floor(item * scale);
+
+                return `<div style="--value: ${value}" data-tooltip="${percent}%"></div>`;
+            })
+            .join('');
+        return chart;
+    }
+
+    async update(from, to) {
+        await this.#fetchData(from, to);
+
+        console.log(`start update ${this.#label} ${this.#data}`);
+
+        let body = this.#element.querySelector('[data-element="body"]');
+        body.innerHTML = this.#addChart();
+
+        //index.js:93 Uncaught (in promise) TypeError: Cannot read properties of null (reading 'classList')
+        this.#element.querySelector('.column-chart_loading').classList.remove(column-chart_loading);
+    }
+
+    async #fetchData(from, to) {
+        this.#url.searchParams.set('from', from.toISOString().split('T')[0]);
+        this.#url.searchParams.set('to', to.toISOString().split('T')[0]);
+
+        let data = [];
+        try {
+            let response = await fetch(this.#url);
+            data = await response.json();
+            data = Object.values(data);
+        } catch {
+            throw new Error(`Problems with fetch from '${this.#url.href}'`);
+        }
+
+        this.#data = data;
+    }
+
+    destroy() {
+        this.remove();
+        this.element = null;
+    }
+
+    remove() {
+        this.#element.remove();
+    }
+
+    get chartHeight() {
+        return this.#chartHeight;
+    }
+
+    get chartformatHeading() {
+        return this.#formatHeading;
+    }
+
+    get element() {
+        return this.#element;
+    }
+
+    set element(value) {
+        return this.#element = value;
+    }
 }
