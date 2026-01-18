@@ -13,7 +13,7 @@ export default class ColumnChart {
     #element;
 
     constructor({ url, range, chartHeight = 50, label = 'orders', link = '', value = 0, formatHeading = data => `${data}` }) {
-        this.#url = new URL(url, 'https://course-js.javascript.ru/');
+        this.#url = new URL(url, BACKEND_URL);
         this.#data = [];
 
         this.#chartHeight = chartHeight;
@@ -22,7 +22,7 @@ export default class ColumnChart {
         this.#value = value;
         this.#formatHeading = formatHeading;
         this.#render();
-        this.update(range.from, range.to);
+        if (range) this.update(range.from, range.to);
     }
 
     #render() {
@@ -66,6 +66,7 @@ export default class ColumnChart {
             return `<div style="--value: 0" data-tooltip="100%"></div>`;
         }
 
+        console.log(this.#data);
         let maxValue = Math.max(...this.#data);
         let scale = this.#chartHeight / maxValue;
 
@@ -80,7 +81,8 @@ export default class ColumnChart {
     }
 
     async update(from, to) {
-        await this.#fetchData(from, to);
+        let data = await this.#fetchData(from, to);
+        this.#data = Object.values(data);
 
         console.log(`start update ${this.#label} ${from.toISOString().split('T')[0]} ${to.toISOString().split('T')[0]} ${this.#data}`);
         let body = this.#element.querySelector('[data-element="body"]');
@@ -88,22 +90,15 @@ export default class ColumnChart {
 
         this.#element.classList.remove('column-chart_loading');
         console.log(`finish update ${this.#label} ${from.toISOString().split('T')[0]} ${to.toISOString().split('T')[0]} ${this.#data}`);
+    
+        return data;
     }
 
     async #fetchData(from, to) {
         this.#url.searchParams.set('from', from.toISOString().split('T')[0]);
         this.#url.searchParams.set('to', to.toISOString().split('T')[0]);
 
-        let data = [];
-        try {
-            let response = await fetch(this.#url);
-            data = await response.json();
-            data = Object.values(data);
-        } catch {
-            throw new Error(`Problems with fetch from '${this.#url.href}'`);
-        }
-
-        this.#data = data;
+        return await fetchJson(this.#url);
     }
 
     destroy() {
