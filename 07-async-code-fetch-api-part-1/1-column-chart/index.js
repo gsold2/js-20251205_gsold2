@@ -21,10 +21,11 @@ export default class ColumnChart {
         this.#link = link;
         this.#value = value;
         this.#formatHeading = formatHeading;
-        this.#render(range.from, range.to);
-     }
+        this.#render();
+        this.update(range.from, range.to);
+    }
 
-    #render(from, to) {
+    #render() {
         let innerHtml = `
         <div class="column-chart ${this.#addChartLoading()}" style="--chart-height: ${this.chartHeight}">
             <div class="column-chart__title">
@@ -40,8 +41,6 @@ export default class ColumnChart {
         </div>`;
 
         this.#element = this.#createElement(innerHtml);
-
-        this.update(from, to);
     }
 
     #createElement(html) {
@@ -51,8 +50,7 @@ export default class ColumnChart {
     }
 
     #addChartLoading() {
-        let chartLoading = this.#data.length == 0 ? 'column-chart_loading' : '';
-        return chartLoading;
+        return this.#data.length == 0 ? 'column-chart_loading' : '';
     }
 
     #addHref() {
@@ -71,7 +69,7 @@ export default class ColumnChart {
         let maxValue = Math.max(...this.#data);
         let scale = this.#chartHeight / maxValue;
 
-        let chart = this.#data
+        return this.#data
             .map((item) => {
                 let percent = (item / maxValue * 100).toFixed(0);
                 let value = Math.floor(item * scale);
@@ -79,14 +77,12 @@ export default class ColumnChart {
                 return `<div style="--value: ${value}" data-tooltip="${percent}%"></div>`;
             })
             .join('');
-        return chart;
     }
 
     async update(from, to) {
         await this.#fetchData(from, to);
 
         console.log(`start update ${this.#label} ${from.toISOString().split('T')[0]} ${to.toISOString().split('T')[0]} ${this.#data}`);
-
         let body = this.#element.querySelector('[data-element="body"]');
         body.innerHTML = this.#addChart();
 
