@@ -66,7 +66,7 @@ export default class ColumnChart {
             return `<div style="--value: 0" data-tooltip="100%"></div>`;
         }
 
-        console.log(this.#data);
+        //console.log(this.#data);
         let maxValue = Math.max(...this.#data);
         let scale = this.#chartHeight / maxValue;
 
@@ -84,13 +84,12 @@ export default class ColumnChart {
         let data = await this.#fetchData(from, to);
         this.#data = Object.values(data);
 
-        console.log(`start update ${this.#label} ${from.toISOString().split('T')[0]} ${to.toISOString().split('T')[0]} ${this.#data}`);
-        let body = this.#element.querySelector('[data-element="body"]');
-        body.innerHTML = this.#addChart();
+        //console.log(`start update ${this.#label} ${from.toISOString().split('T')[0]} ${to.toISOString().split('T')[0]} ${this.#data}`);
+        this.#body().innerHTML = this.#addChart();
 
         this.#element.classList.remove('column-chart_loading');
-        console.log(`finish update ${this.#label} ${from.toISOString().split('T')[0]} ${to.toISOString().split('T')[0]} ${this.#data}`);
-    
+        //console.log(`finish update ${this.#label} ${from.toISOString().split('T')[0]} ${to.toISOString().split('T')[0]} ${this.#data}`);
+
         return data;
     }
 
@@ -114,9 +113,9 @@ export default class ColumnChart {
         return this.#chartHeight;
     }
 
-    get chartformatHeading() {
+    /* get chartformatHeading() {
         return this.#formatHeading;
-    }
+    } */
 
     get element() {
         return this.#element;
@@ -124,5 +123,15 @@ export default class ColumnChart {
 
     set element(value) {
         return this.#element = value;
+    }
+
+    #body() {
+        return this.#element.querySelector('[data-element="body"]');
+    }
+
+    get subElements() {
+        return {
+            body: this.#body()
+        };
     }
 }
