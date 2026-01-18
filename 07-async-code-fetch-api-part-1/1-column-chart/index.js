@@ -12,7 +12,7 @@ export default class ColumnChart {
     #formatHeading;
     #element;
 
-    constructor({ url, range, chartHeight = 50, label = 'orders', link = '', value = 0, formatHeading = data => `${data}` }) {
+    constructor({ url = '', range, chartHeight = 50, label = 'orders', link = '', value = 0, formatHeading = data => `${data}` } = {}) {
         this.#url = new URL(url, BACKEND_URL);
         this.#data = [];
 
@@ -22,7 +22,7 @@ export default class ColumnChart {
         this.#value = value;
         this.#formatHeading = formatHeading;
         this.#render();
-        if (range) this.update(range.from, range.to);
+        if (range != undefined) this.update(range.from, range.to);
     }
 
     #render() {
@@ -41,7 +41,9 @@ export default class ColumnChart {
         </div>`;
 
         this.#element = this.#createElement(innerHtml);
-    }
+
+        console.log(`this.#element \n ${this.#element.parentElement.innerHTML}`);
+     }
 
     #createElement(html) {
         const tmp = document.createElement('div');
@@ -90,6 +92,8 @@ export default class ColumnChart {
         this.#element.classList.remove('column-chart_loading');
         //console.log(`finish update ${this.#label} ${from.toISOString().split('T')[0]} ${to.toISOString().split('T')[0]} ${this.#data}`);
 
+        //console.log(`this.#element \n ${this.#element.parentElement.innerHTML}`);
+
         return data;
     }
 
@@ -113,7 +117,7 @@ export default class ColumnChart {
     } */
 
     get element() {
-        return this.#element;
+        return this.#element.parentElement;
     }
 
     set element(value) {
