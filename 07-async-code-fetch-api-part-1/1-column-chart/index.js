@@ -11,6 +11,7 @@ export default class ColumnChart {
     #chartHeight;
     #formatHeading;
     #element;
+    #subElements;
 
     constructor({ url = '', range, chartHeight = 50, label = 'orders', link = '', value = 0, formatHeading = data => `${data}` } = {}) {
         this.#url = new URL(url, BACKEND_URL);
@@ -41,6 +42,7 @@ export default class ColumnChart {
         </div>`;
 
         this.#element = this.#createElement(innerHtml);
+        this.#subElements = this.#element.querySelector('[data-element="body"]');
      }
 
     #createElement(html) {
@@ -83,15 +85,15 @@ export default class ColumnChart {
         let data = await this.#fetchData(from, to);
         this.#data = Object.values(data);
 
-        this.#body().innerHTML = this.#addChart();
+        this.#subElements.innerHTML = this.#addChart();
         this.#element.classList.remove('column-chart_loading');
 
         return data;
     }
 
     async #fetchData(from, to) {
-        this.#url.searchParams.set('from', from.toISOString().split('T')[0]);
-        this.#url.searchParams.set('to', to.toISOString().split('T')[0]);
+        this.#url.searchParams.set('from', from.toISOString());
+        this.#url.searchParams.set('to', to.toISOString());
 
         return await fetchJson(this.#url);
     }
@@ -112,13 +114,7 @@ export default class ColumnChart {
         return this.#element = value;
     }
 
-    #body() {
-        return this.#element.querySelector('[data-element="body"]');
-    }
-
     get subElements() {
-        return {
-            body: this.#body()
-        };
+        return this.#subElements;
     }
 }
